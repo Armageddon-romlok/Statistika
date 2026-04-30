@@ -1,0 +1,642 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "provenance": []
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    },
+    "language_info": {
+      "name": "python"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "code",
+      "execution_count": 4,
+      "metadata": {
+        "id": "RCBvqGZLwQbq"
+      },
+      "outputs": [],
+      "source": [
+        "import pandas as pd\n",
+        "import scipy.stats as stats\n",
+        "import statsmodels.api as sm\n",
+        "from statsmodels.formula.api import ols"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "## **Memuat dataset**"
+      ],
+      "metadata": {
+        "id": "KBP0C-riwgO3"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "df = pd.read_csv('insurance.csv')"
+      ],
+      "metadata": {
+        "id": "8P7l8wQvwjO5"
+      },
+      "execution_count": 5,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "# **Menampilkan 5 data teratas**"
+      ],
+      "metadata": {
+        "id": "V568oKV4xlVP"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "display(df.head())"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 206
+        },
+        "id": "x-988a3DwkX6",
+        "outputId": "b8178840-6c17-4898-da37-26f760efa631"
+      },
+      "execution_count": 6,
+      "outputs": [
+        {
+          "output_type": "display_data",
+          "data": {
+            "text/plain": [
+              "   age     sex     bmi  children smoker     region      charges\n",
+              "0   19  female  27.900         0    yes  southwest  16884.92400\n",
+              "1   18    male  33.770         1     no  southeast   1725.55230\n",
+              "2   28    male  33.000         3     no  southeast   4449.46200\n",
+              "3   33    male  22.705         0     no  northwest  21984.47061\n",
+              "4   32    male  28.880         0     no  northwest   3866.85520"
+            ],
+            "text/html": [
+              "\n",
+              "  <div id=\"df-800bbbc5-da4b-42c4-8e4d-12c44e232c57\" class=\"colab-df-container\">\n",
+              "    <div>\n",
+              "<style scoped>\n",
+              "    .dataframe tbody tr th:only-of-type {\n",
+              "        vertical-align: middle;\n",
+              "    }\n",
+              "\n",
+              "    .dataframe tbody tr th {\n",
+              "        vertical-align: top;\n",
+              "    }\n",
+              "\n",
+              "    .dataframe thead th {\n",
+              "        text-align: right;\n",
+              "    }\n",
+              "</style>\n",
+              "<table border=\"1\" class=\"dataframe\">\n",
+              "  <thead>\n",
+              "    <tr style=\"text-align: right;\">\n",
+              "      <th></th>\n",
+              "      <th>age</th>\n",
+              "      <th>sex</th>\n",
+              "      <th>bmi</th>\n",
+              "      <th>children</th>\n",
+              "      <th>smoker</th>\n",
+              "      <th>region</th>\n",
+              "      <th>charges</th>\n",
+              "    </tr>\n",
+              "  </thead>\n",
+              "  <tbody>\n",
+              "    <tr>\n",
+              "      <th>0</th>\n",
+              "      <td>19</td>\n",
+              "      <td>female</td>\n",
+              "      <td>27.900</td>\n",
+              "      <td>0</td>\n",
+              "      <td>yes</td>\n",
+              "      <td>southwest</td>\n",
+              "      <td>16884.92400</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>1</th>\n",
+              "      <td>18</td>\n",
+              "      <td>male</td>\n",
+              "      <td>33.770</td>\n",
+              "      <td>1</td>\n",
+              "      <td>no</td>\n",
+              "      <td>southeast</td>\n",
+              "      <td>1725.55230</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>2</th>\n",
+              "      <td>28</td>\n",
+              "      <td>male</td>\n",
+              "      <td>33.000</td>\n",
+              "      <td>3</td>\n",
+              "      <td>no</td>\n",
+              "      <td>southeast</td>\n",
+              "      <td>4449.46200</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>3</th>\n",
+              "      <td>33</td>\n",
+              "      <td>male</td>\n",
+              "      <td>22.705</td>\n",
+              "      <td>0</td>\n",
+              "      <td>no</td>\n",
+              "      <td>northwest</td>\n",
+              "      <td>21984.47061</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>4</th>\n",
+              "      <td>32</td>\n",
+              "      <td>male</td>\n",
+              "      <td>28.880</td>\n",
+              "      <td>0</td>\n",
+              "      <td>no</td>\n",
+              "      <td>northwest</td>\n",
+              "      <td>3866.85520</td>\n",
+              "    </tr>\n",
+              "  </tbody>\n",
+              "</table>\n",
+              "</div>\n",
+              "    <div class=\"colab-df-buttons\">\n",
+              "\n",
+              "  <div class=\"colab-df-container\">\n",
+              "    <button class=\"colab-df-convert\" onclick=\"convertToInteractive('df-800bbbc5-da4b-42c4-8e4d-12c44e232c57')\"\n",
+              "            title=\"Convert this dataframe to an interactive table.\"\n",
+              "            style=\"display:none;\">\n",
+              "\n",
+              "  <svg xmlns=\"http://www.w3.org/2000/svg\" height=\"24px\" viewBox=\"0 -960 960 960\">\n",
+              "    <path d=\"M120-120v-720h720v720H120Zm60-500h600v-160H180v160Zm220 220h160v-160H400v160Zm0 220h160v-160H400v160ZM180-400h160v-160H180v160Zm440 0h160v-160H620v160ZM180-180h160v-160H180v160Zm440 0h160v-160H620v160Z\"/>\n",
+              "  </svg>\n",
+              "    </button>\n",
+              "\n",
+              "  <style>\n",
+              "    .colab-df-container {\n",
+              "      display:flex;\n",
+              "      gap: 12px;\n",
+              "    }\n",
+              "\n",
+              "    .colab-df-convert {\n",
+              "      background-color: #E8F0FE;\n",
+              "      border: none;\n",
+              "      border-radius: 50%;\n",
+              "      cursor: pointer;\n",
+              "      display: none;\n",
+              "      fill: #1967D2;\n",
+              "      height: 32px;\n",
+              "      padding: 0 0 0 0;\n",
+              "      width: 32px;\n",
+              "    }\n",
+              "\n",
+              "    .colab-df-convert:hover {\n",
+              "      background-color: #E2EBFA;\n",
+              "      box-shadow: 0px 1px 2px rgba(60, 64, 67, 0.3), 0px 1px 3px 1px rgba(60, 64, 67, 0.15);\n",
+              "      fill: #174EA6;\n",
+              "    }\n",
+              "\n",
+              "    .colab-df-buttons div {\n",
+              "      margin-bottom: 4px;\n",
+              "    }\n",
+              "\n",
+              "    [theme=dark] .colab-df-convert {\n",
+              "      background-color: #3B4455;\n",
+              "      fill: #D2E3FC;\n",
+              "    }\n",
+              "\n",
+              "    [theme=dark] .colab-df-convert:hover {\n",
+              "      background-color: #434B5C;\n",
+              "      box-shadow: 0px 1px 3px 1px rgba(0, 0, 0, 0.15);\n",
+              "      filter: drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.3));\n",
+              "      fill: #FFFFFF;\n",
+              "    }\n",
+              "  </style>\n",
+              "\n",
+              "    <script>\n",
+              "      const buttonEl =\n",
+              "        document.querySelector('#df-800bbbc5-da4b-42c4-8e4d-12c44e232c57 button.colab-df-convert');\n",
+              "      buttonEl.style.display =\n",
+              "        google.colab.kernel.accessAllowed ? 'block' : 'none';\n",
+              "\n",
+              "      async function convertToInteractive(key) {\n",
+              "        const element = document.querySelector('#df-800bbbc5-da4b-42c4-8e4d-12c44e232c57');\n",
+              "        const dataTable =\n",
+              "          await google.colab.kernel.invokeFunction('convertToInteractive',\n",
+              "                                                    [key], {});\n",
+              "        if (!dataTable) return;\n",
+              "\n",
+              "        const docLinkHtml = 'Like what you see? Visit the ' +\n",
+              "          '<a target=\"_blank\" href=https://colab.research.google.com/notebooks/data_table.ipynb>data table notebook</a>'\n",
+              "          + ' to learn more about interactive tables.';\n",
+              "        element.innerHTML = '';\n",
+              "        dataTable['output_type'] = 'display_data';\n",
+              "        await google.colab.output.renderOutput(dataTable, element);\n",
+              "        const docLink = document.createElement('div');\n",
+              "        docLink.innerHTML = docLinkHtml;\n",
+              "        element.appendChild(docLink);\n",
+              "      }\n",
+              "    </script>\n",
+              "  </div>\n",
+              "\n",
+              "\n",
+              "    </div>\n",
+              "  </div>\n"
+            ],
+            "application/vnd.google.colaboratory.intrinsic+json": {
+              "type": "dataframe",
+              "summary": "{\n  \"name\": \"display(df\",\n  \"rows\": 5,\n  \"fields\": [\n    {\n      \"column\": \"age\",\n      \"properties\": {\n        \"dtype\": \"number\",\n        \"std\": 7,\n        \"min\": 18,\n        \"max\": 33,\n        \"num_unique_values\": 5,\n        \"samples\": [\n          18,\n          32,\n          28\n        ],\n        \"semantic_type\": \"\",\n        \"description\": \"\"\n      }\n    },\n    {\n      \"column\": \"sex\",\n      \"properties\": {\n        \"dtype\": \"category\",\n        \"num_unique_values\": 2,\n        \"samples\": [\n          \"male\",\n          \"female\"\n        ],\n        \"semantic_type\": \"\",\n        \"description\": \"\"\n      }\n    },\n    {\n      \"column\": \"bmi\",\n      \"properties\": {\n        \"dtype\": \"number\",\n        \"std\": 4.4522275323707365,\n        \"min\": 22.705,\n        \"max\": 33.77,\n        \"num_unique_values\": 5,\n        \"samples\": [\n          33.77,\n          28.88\n        ],\n        \"semantic_type\": \"\",\n        \"description\": \"\"\n      }\n    },\n    {\n      \"column\": \"children\",\n      \"properties\": {\n        \"dtype\": \"number\",\n        \"std\": 1,\n        \"min\": 0,\n        \"max\": 3,\n        \"num_unique_values\": 3,\n        \"samples\": [\n          0,\n          1\n        ],\n        \"semantic_type\": \"\",\n        \"description\": \"\"\n      }\n    },\n    {\n      \"column\": \"smoker\",\n      \"properties\": {\n        \"dtype\": \"category\",\n        \"num_unique_values\": 2,\n        \"samples\": [\n          \"no\",\n          \"yes\"\n        ],\n        \"semantic_type\": \"\",\n        \"description\": \"\"\n      }\n    },\n    {\n      \"column\": \"region\",\n      \"properties\": {\n        \"dtype\": \"string\",\n        \"num_unique_values\": 3,\n        \"samples\": [\n          \"southwest\",\n          \"southeast\"\n        ],\n        \"semantic_type\": \"\",\n        \"description\": \"\"\n      }\n    },\n    {\n      \"column\": \"charges\",\n      \"properties\": {\n        \"dtype\": \"number\",\n        \"std\": 9051.009157648406,\n        \"min\": 1725.5523,\n        \"max\": 21984.47061,\n        \"num_unique_values\": 5,\n        \"samples\": [\n          1725.5523,\n          3866.8552\n        ],\n        \"semantic_type\": \"\",\n        \"description\": \"\"\n      }\n    }\n  ]\n}"
+            }
+          },
+          "metadata": {}
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "# **1. Uji perbedaan Rata-rata Berdasarkan Jenis Kelamin**\n"
+      ],
+      "metadata": {
+        "id": "_5O-JqLbyTle"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# Memisahkan data charges untuk laki-laki dan perempuan\n",
+        "male_charges = df[df['sex'] == 'male']['charges']\n",
+        "female_charges = df[df['sex'] == 'female']['charges']\n",
+        "\n",
+        "# Melakukan Independent T-Test\n",
+        "t_stat, p_val_sex = stats.ttest_ind(male_charges, female_charges)\n",
+        "\n",
+        "print(f\"Rata-rata Biaya Laki-laki   : ${male_charges.mean():.2f}\")\n",
+        "print(f\"Rata-rata Biaya Perempuan : ${female_charges.mean():.2f}\")\n",
+        "print(f\"T-statistic : {t_stat:.4f}\")\n",
+        "print(f\"P-value     : {p_val_sex:.4f}\\n\")\n",
+        "\n",
+        "if p_val_reg < 0.05:\n",
+        "    print(\"Kesimpulan: Terdapat perbedaan rata-rata biaya klaim asuransi yang SIGNIFIKAN di antara keempat wilayah.\")\n",
+        "else:\n",
+        "    print(\"Kesimpulan: Tidak terdapat perbedaan biaya klaim asuransi yang signifikan di antara keempat wilayah.\")"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 0
+        },
+        "id": "vivWB_XDx5Az",
+        "outputId": "e1bf6757-8b90-455a-f981-b1a7ede38982"
+      },
+      "execution_count": 25,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Rata-rata Biaya Laki-laki   : $13956.75\n",
+            "Rata-rata Biaya Perempuan : $12569.58\n",
+            "T-statistic : 2.0975\n",
+            "P-value     : 0.0361\n",
+            "\n",
+            "Kesimpulan: Terdapat perbedaan rata-rata biaya klaim asuransi yang SIGNIFIKAN di antara keempat wilayah.\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "# **2. Uji Perbedaan Rata-rata Berdasarkan Wilayah**"
+      ],
+      "metadata": {
+        "id": "6SD17EEpzOSj"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# Mengambil nilai unik dari kolom wilayah\n",
+        "regions = df['region'].unique()\n",
+        "\n",
+        "# Menampilkan rata-rata per wilayah\n",
+        "for r in regions:\n",
+        "    mean_charge = df[df['region'] == r]['charges'].mean()\n",
+        "    print(f\"Rata-rata Biaya {r.capitalize():<10} : ${mean_charge:.2f}\")\n",
+        "\n",
+        "# Menyiapkan list data charges per wilayah untuk uji ANOVA\n",
+        "region_data = [df[df['region'] == r]['charges'] for r in regions]\n",
+        "\n",
+        "# Melakukan One-Way ANOVA\n",
+        "f_stat_reg, p_val_reg = stats.f_oneway(*region_data)\n",
+        "\n",
+        "print(f\"\\nF-statistic : {f_stat_reg:.4f}\")\n",
+        "print(f\"P-value     : {p_val_reg:.4f}\\n\")\n",
+        "\n",
+        "if p_val_interaction < 0.05:\n",
+        "    print(\"Kesimpulan: Terdapat efek interaksi yang SIGNIFIKAN antara jenis kelamin dan wilayah terhadap biaya klaim.\")\n",
+        "else:\n",
+        "    print(\"Kesimpulan: TIDAK terdapat efek interaksi yang signifikan antara jenis kelamin dan wilayah.\")"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 0
+        },
+        "id": "qjqi-7ulygHG",
+        "outputId": "4d300b2c-8f86-45e4-dcd4-e9f88d2dcae0"
+      },
+      "execution_count": 27,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Rata-rata Biaya Southwest  : $12346.94\n",
+            "Rata-rata Biaya Southeast  : $14735.41\n",
+            "Rata-rata Biaya Northwest  : $12417.58\n",
+            "Rata-rata Biaya Northeast  : $13406.38\n",
+            "\n",
+            "F-statistic : 2.9696\n",
+            "P-value     : 0.0309\n",
+            "\n",
+            "Kesimpulan: TIDAK terdapat efek interaksi yang signifikan antara jenis kelamin dan wilayah.\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "#3. **Uji Efek Interaksi Jenis Kelamin dan Wilayah**"
+      ],
+      "metadata": {
+        "id": "GlmKIxLtz8tR"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# Membuat model regresi linear (OLS) dengan variabel interaksi jenis kelamin dan wilayah\n",
+        "model = ols('charges ~ C(sex) + C(region) + C(sex):C(region)', data=df).fit()\n",
+        "\n",
+        "# Menghasilkan tabel ANOVA\n",
+        "anova_table = sm.stats.anova_lm(model, typ=2)\n",
+        "display(anova_table)\n",
+        "\n",
+        "# Mengambil nilai p-value khusus untuk interaksi antara jenis kelamin dan wilayah\n",
+        "p_val_interaction = anova_table.loc['C(sex):C(region)', 'PR(>F)']\n",
+        "print(f\"\\nP-value Interaksi (Jenis Kelamin : Wilayah) : {p_val_interaction:.4f}\\n\")\n",
+        "\n",
+        "if p_val_interaction < 0.05:\n",
+        "    print(\"Kesimpulan: Terdapat efek interaksi yang SIGNIFIKAN antara jenis kelamin dan wilayah terhadap biaya klaim.\")\n",
+        "else:\n",
+        "    print(\"Kesimpulan: TIDAK terdapat efek interaksi yang signifikan antara jenis kelamin dan wilayah.\")"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 244
+        },
+        "id": "kwKueOfI0ELy",
+        "outputId": "e829083c-c236-40d5-9b76-30e66e374f61"
+      },
+      "execution_count": 24,
+      "outputs": [
+        {
+          "output_type": "display_data",
+          "data": {
+            "text/plain": [
+              "                        sum_sq      df         F    PR(>F)\n",
+              "C(sex)            6.130692e+08     1.0  4.206899  0.040455\n",
+              "C(region)         1.270239e+09     3.0  2.905472  0.033691\n",
+              "C(sex):C(region)  3.401733e+08     3.0  0.778093  0.506208\n",
+              "Residual          1.938202e+11  1330.0       NaN       NaN"
+            ],
+            "text/html": [
+              "\n",
+              "  <div id=\"df-1a067598-f350-451f-8f74-788630c79898\" class=\"colab-df-container\">\n",
+              "    <div>\n",
+              "<style scoped>\n",
+              "    .dataframe tbody tr th:only-of-type {\n",
+              "        vertical-align: middle;\n",
+              "    }\n",
+              "\n",
+              "    .dataframe tbody tr th {\n",
+              "        vertical-align: top;\n",
+              "    }\n",
+              "\n",
+              "    .dataframe thead th {\n",
+              "        text-align: right;\n",
+              "    }\n",
+              "</style>\n",
+              "<table border=\"1\" class=\"dataframe\">\n",
+              "  <thead>\n",
+              "    <tr style=\"text-align: right;\">\n",
+              "      <th></th>\n",
+              "      <th>sum_sq</th>\n",
+              "      <th>df</th>\n",
+              "      <th>F</th>\n",
+              "      <th>PR(&gt;F)</th>\n",
+              "    </tr>\n",
+              "  </thead>\n",
+              "  <tbody>\n",
+              "    <tr>\n",
+              "      <th>C(sex)</th>\n",
+              "      <td>6.130692e+08</td>\n",
+              "      <td>1.0</td>\n",
+              "      <td>4.206899</td>\n",
+              "      <td>0.040455</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>C(region)</th>\n",
+              "      <td>1.270239e+09</td>\n",
+              "      <td>3.0</td>\n",
+              "      <td>2.905472</td>\n",
+              "      <td>0.033691</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>C(sex):C(region)</th>\n",
+              "      <td>3.401733e+08</td>\n",
+              "      <td>3.0</td>\n",
+              "      <td>0.778093</td>\n",
+              "      <td>0.506208</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>Residual</th>\n",
+              "      <td>1.938202e+11</td>\n",
+              "      <td>1330.0</td>\n",
+              "      <td>NaN</td>\n",
+              "      <td>NaN</td>\n",
+              "    </tr>\n",
+              "  </tbody>\n",
+              "</table>\n",
+              "</div>\n",
+              "    <div class=\"colab-df-buttons\">\n",
+              "\n",
+              "  <div class=\"colab-df-container\">\n",
+              "    <button class=\"colab-df-convert\" onclick=\"convertToInteractive('df-1a067598-f350-451f-8f74-788630c79898')\"\n",
+              "            title=\"Convert this dataframe to an interactive table.\"\n",
+              "            style=\"display:none;\">\n",
+              "\n",
+              "  <svg xmlns=\"http://www.w3.org/2000/svg\" height=\"24px\" viewBox=\"0 -960 960 960\">\n",
+              "    <path d=\"M120-120v-720h720v720H120Zm60-500h600v-160H180v160Zm220 220h160v-160H400v160Zm0 220h160v-160H400v160ZM180-400h160v-160H180v160Zm440 0h160v-160H620v160ZM180-180h160v-160H180v160Zm440 0h160v-160H620v160Z\"/>\n",
+              "  </svg>\n",
+              "    </button>\n",
+              "\n",
+              "  <style>\n",
+              "    .colab-df-container {\n",
+              "      display:flex;\n",
+              "      gap: 12px;\n",
+              "    }\n",
+              "\n",
+              "    .colab-df-convert {\n",
+              "      background-color: #E8F0FE;\n",
+              "      border: none;\n",
+              "      border-radius: 50%;\n",
+              "      cursor: pointer;\n",
+              "      display: none;\n",
+              "      fill: #1967D2;\n",
+              "      height: 32px;\n",
+              "      padding: 0 0 0 0;\n",
+              "      width: 32px;\n",
+              "    }\n",
+              "\n",
+              "    .colab-df-convert:hover {\n",
+              "      background-color: #E2EBFA;\n",
+              "      box-shadow: 0px 1px 2px rgba(60, 64, 67, 0.3), 0px 1px 3px 1px rgba(60, 64, 67, 0.15);\n",
+              "      fill: #174EA6;\n",
+              "    }\n",
+              "\n",
+              "    .colab-df-buttons div {\n",
+              "      margin-bottom: 4px;\n",
+              "    }\n",
+              "\n",
+              "    [theme=dark] .colab-df-convert {\n",
+              "      background-color: #3B4455;\n",
+              "      fill: #D2E3FC;\n",
+              "    }\n",
+              "\n",
+              "    [theme=dark] .colab-df-convert:hover {\n",
+              "      background-color: #434B5C;\n",
+              "      box-shadow: 0px 1px 3px 1px rgba(0, 0, 0, 0.15);\n",
+              "      filter: drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.3));\n",
+              "      fill: #FFFFFF;\n",
+              "    }\n",
+              "  </style>\n",
+              "\n",
+              "    <script>\n",
+              "      const buttonEl =\n",
+              "        document.querySelector('#df-1a067598-f350-451f-8f74-788630c79898 button.colab-df-convert');\n",
+              "      buttonEl.style.display =\n",
+              "        google.colab.kernel.accessAllowed ? 'block' : 'none';\n",
+              "\n",
+              "      async function convertToInteractive(key) {\n",
+              "        const element = document.querySelector('#df-1a067598-f350-451f-8f74-788630c79898');\n",
+              "        const dataTable =\n",
+              "          await google.colab.kernel.invokeFunction('convertToInteractive',\n",
+              "                                                    [key], {});\n",
+              "        if (!dataTable) return;\n",
+              "\n",
+              "        const docLinkHtml = 'Like what you see? Visit the ' +\n",
+              "          '<a target=\"_blank\" href=https://colab.research.google.com/notebooks/data_table.ipynb>data table notebook</a>'\n",
+              "          + ' to learn more about interactive tables.';\n",
+              "        element.innerHTML = '';\n",
+              "        dataTable['output_type'] = 'display_data';\n",
+              "        await google.colab.output.renderOutput(dataTable, element);\n",
+              "        const docLink = document.createElement('div');\n",
+              "        docLink.innerHTML = docLinkHtml;\n",
+              "        element.appendChild(docLink);\n",
+              "      }\n",
+              "    </script>\n",
+              "  </div>\n",
+              "\n",
+              "\n",
+              "  <div id=\"id_3e6ca755-5961-46bc-b438-d307f982c17b\">\n",
+              "    <style>\n",
+              "      .colab-df-generate {\n",
+              "        background-color: #E8F0FE;\n",
+              "        border: none;\n",
+              "        border-radius: 50%;\n",
+              "        cursor: pointer;\n",
+              "        display: none;\n",
+              "        fill: #1967D2;\n",
+              "        height: 32px;\n",
+              "        padding: 0 0 0 0;\n",
+              "        width: 32px;\n",
+              "      }\n",
+              "\n",
+              "      .colab-df-generate:hover {\n",
+              "        background-color: #E2EBFA;\n",
+              "        box-shadow: 0px 1px 2px rgba(60, 64, 67, 0.3), 0px 1px 3px 1px rgba(60, 64, 67, 0.15);\n",
+              "        fill: #174EA6;\n",
+              "      }\n",
+              "\n",
+              "      [theme=dark] .colab-df-generate {\n",
+              "        background-color: #3B4455;\n",
+              "        fill: #D2E3FC;\n",
+              "      }\n",
+              "\n",
+              "      [theme=dark] .colab-df-generate:hover {\n",
+              "        background-color: #434B5C;\n",
+              "        box-shadow: 0px 1px 3px 1px rgba(0, 0, 0, 0.15);\n",
+              "        filter: drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.3));\n",
+              "        fill: #FFFFFF;\n",
+              "      }\n",
+              "    </style>\n",
+              "    <button class=\"colab-df-generate\" onclick=\"generateWithVariable('anova_table')\"\n",
+              "            title=\"Generate code using this dataframe.\"\n",
+              "            style=\"display:none;\">\n",
+              "\n",
+              "  <svg xmlns=\"http://www.w3.org/2000/svg\" height=\"24px\"viewBox=\"0 0 24 24\"\n",
+              "       width=\"24px\">\n",
+              "    <path d=\"M7,19H8.4L18.45,9,17,7.55,7,17.6ZM5,21V16.75L18.45,3.32a2,2,0,0,1,2.83,0l1.4,1.43a1.91,1.91,0,0,1,.58,1.4,1.91,1.91,0,0,1-.58,1.4L9.25,21ZM18.45,9,17,7.55Zm-12,3A5.31,5.31,0,0,0,4.9,8.1,5.31,5.31,0,0,0,1,6.5,5.31,5.31,0,0,0,4.9,4.9,5.31,5.31,0,0,0,6.5,1,5.31,5.31,0,0,0,8.1,4.9,5.31,5.31,0,0,0,12,6.5,5.46,5.46,0,0,0,6.5,12Z\"/>\n",
+              "  </svg>\n",
+              "    </button>\n",
+              "    <script>\n",
+              "      (() => {\n",
+              "      const buttonEl =\n",
+              "        document.querySelector('#id_3e6ca755-5961-46bc-b438-d307f982c17b button.colab-df-generate');\n",
+              "      buttonEl.style.display =\n",
+              "        google.colab.kernel.accessAllowed ? 'block' : 'none';\n",
+              "\n",
+              "      buttonEl.onclick = () => {\n",
+              "        google.colab.notebook.generateWithVariable('anova_table');\n",
+              "      }\n",
+              "      })();\n",
+              "    </script>\n",
+              "  </div>\n",
+              "\n",
+              "    </div>\n",
+              "  </div>\n"
+            ],
+            "application/vnd.google.colaboratory.intrinsic+json": {
+              "type": "dataframe",
+              "variable_name": "anova_table",
+              "summary": "{\n  \"name\": \"anova_table\",\n  \"rows\": 4,\n  \"fields\": [\n    {\n      \"column\": \"sum_sq\",\n      \"properties\": {\n        \"dtype\": \"number\",\n        \"std\": 96540318666.1234,\n        \"min\": 340173346.03717154,\n        \"max\": 193820219374.31427,\n        \"num_unique_values\": 4,\n        \"samples\": [\n          1270238667.8883624,\n          193820219374.31427,\n          613069166.7055591\n        ],\n        \"semantic_type\": \"\",\n        \"description\": \"\"\n      }\n    },\n    {\n      \"column\": \"df\",\n      \"properties\": {\n        \"dtype\": \"number\",\n        \"std\": 663.8340028450888,\n        \"min\": 1.0,\n        \"max\": 1330.0,\n        \"num_unique_values\": 3,\n        \"samples\": [\n          1.0,\n          3.0,\n          1330.0\n        ],\n        \"semantic_type\": \"\",\n        \"description\": \"\"\n      }\n    },\n    {\n      \"column\": \"F\",\n      \"properties\": {\n        \"dtype\": \"number\",\n        \"std\": 1.73090329700999,\n        \"min\": 0.7780931416580504,\n        \"max\": 4.2068985080637615,\n        \"num_unique_values\": 3,\n        \"samples\": [\n          4.2068985080637615,\n          2.9054715993086417,\n          0.7780931416580504\n        ],\n        \"semantic_type\": \"\",\n        \"description\": \"\"\n      }\n    },\n    {\n      \"column\": \"PR(>F)\",\n      \"properties\": {\n        \"dtype\": \"number\",\n        \"std\": 0.2708761321040875,\n        \"min\": 0.03369057055486001,\n        \"max\": 0.5062076489636542,\n        \"num_unique_values\": 3,\n        \"samples\": [\n          0.04045543928003404,\n          0.03369057055486001,\n          0.5062076489636542\n        ],\n        \"semantic_type\": \"\",\n        \"description\": \"\"\n      }\n    }\n  ]\n}"
+            }
+          },
+          "metadata": {}
+        },
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "\n",
+            "P-value Interaksi (Jenis Kelamin : Wilayah) : 0.5062\n",
+            "\n",
+            "Kesimpulan: TIDAK terdapat efek interaksi yang signifikan antara jenis kelamin dan wilayah.\n"
+          ]
+        }
+      ]
+    }
+  ]
+}
